@@ -18,48 +18,27 @@ import java.util.Set;
  */
 public class NeuronLayer {
     
-    final static int MAX_LAYERS = 3;
     private List<Neuron> neurons = new ArrayList<Neuron>(); // when building don't forget the bias input
     
-    /**
-     * 
-     * @param targetValues
-     * @param attributeNames
-     * @param numLayers 
-     */
-    private NeuronLayer(Set<String> attributeNames, int numNeurons) {
-        this.buildLayer(attributeNames, numNeurons);
-    }
-    
-    /**
-     * 
-     * @param neuronName 
-     */
-    private void addNeuron(String neuronName) {
-        // create then add the neuron
-        // call the next neuronLayer to do the same
-    }
-    
-    /**
-     * 
-     * @param layer 
-     */
-    private void connectNeuronLayer(NeuronLayer layer) {
-        // connects the neuronLayer to this one
+    NeuronLayer(int numNeurons, Set<String> inputNames) {
+        // make a neuron for each name
+        for(int i = 0; i < numNeurons; ++i) {
+            String neuronName = i+"";
+            neurons.add(new Neuron(inputNames, neuronName));
+        }
     }
     
     /**
      * 
      * @param targetValues
-     * @param attributeNames 
+     * @param inputNames
      */
-    private void buildLayer(Set<String> targetValues, Set<String> attributeNames) {
-        // we need one neuron for each possible target class in the set
-        // create a neuron for each target value
-        Iterator<String> iter = targetValues.iterator();
+    NeuronLayer(Set<String> inputNames, ArrayList<String> neuronNames) {
+        // make a neuron for each name
+        Iterator<String> iter = neuronNames.iterator();
         while(iter.hasNext()) {
             String neuronName = iter.next();
-            neurons.add(new Neuron(attributeNames, neuronName));
+            neurons.add(new Neuron(inputNames, neuronName));
         }
     }
     
@@ -69,7 +48,8 @@ public class NeuronLayer {
         Iterator<Neuron> iter = neurons.iterator();
         while(iter.hasNext()) {
             Neuron neuron = iter.next();
-            outputs.put(neuron.getName(), neuron.classify(point));
+            double value = neuron.classify(point);
+            outputs.put(neuron.getName(), value);
         }
         return outputs;
     }
@@ -91,13 +71,34 @@ public class NeuronLayer {
         }
     }
     
-    public String getTargetName(ArrayList<Double> result) {
-        for(int i = 0; i < result.size(); ++i) {
-            if(result.get(i) > 0) {
-                return this.neurons.get(i).getName();
-            }
+    public void learn() {
+        
+    }
+    
+    public int getNeuronCount() {
+        return this.neurons.size();
+    }
+    
+    public void renameNeurons(Set<String> names) {
+        Iterator<String> sIter = names.iterator();
+        Iterator<Neuron> nIter = neurons.iterator();
+        for(int i = 0; nIter.hasNext() && sIter.hasNext(); ++i) {
+            String name = sIter.next();
+            Neuron neuron = nIter.next();
+            System.err.print("Neuron " + neuron.getName() + " renamed to ");
+            neuron.rename(name);
+            System.err.println(neuron.getName());
         }
-        return "";
+    }
+    
+    public Neuron getNeuron(String name) {
+        Iterator<Neuron> iter = neurons.iterator();
+        while(iter.hasNext()) {
+            Neuron neuron = iter.next();
+            if(neuron.getName().equals(name))
+                return neuron;
+        }
+        return null;
     }
     
 }

@@ -16,14 +16,16 @@ import java.util.Set;
  * @author chad
  */
 public class Neuron {
+    
     private final static String BIAS_INPUT = "BIAS_INPUT";
     private final static double BIAS_VALUE = 1.0;
-    private final static double THRESHOLD = 0;
     private final static double LEARNING_RATE = 0.2;
+    
     private HashMap<String, Double> inputWeights = new HashMap<String, Double>();
     private String neuronName;
-    private double output = -1;
-    private DataPoint lastPoint;
+    private DataPoint lastInput;
+    private double regressionOutput;
+    private double output;
     
     /**
      * 
@@ -55,7 +57,7 @@ public class Neuron {
      * @return 
      */
     public double classify(DataPoint point) {
-        lastPoint = point;
+        lastInput = point;
         double inputSum = 0;
         Set<String> keys = point.getAttributeKeys();
         Iterator<String> keysIter = keys.iterator();
@@ -73,6 +75,8 @@ public class Neuron {
         }
         // add the bias
         inputSum += this.BIAS_VALUE * this.inputWeights.get(this.BIAS_INPUT);
+        
+        regressionOutput = inputSum;
         output = calculateOutput(inputSum);
         
         return output;
@@ -85,10 +89,15 @@ public class Neuron {
      */
     private void addInput(String input) {
         // start weight at a small possitive or negative value between ~0.1 and ~0.4;
-        // common practice, -1/sqrt(n) < w < 1/sqrt(n)
-        Double weight = Math.random() / 3;
+        double randomNum = Math.random();
+        int sign = 1;
+        if((int)(randomNum * 100 % 2) == 0) {
+            sign = -1;
+        }
+        Double weight = randomNum / 3;
         weight += 0.1;
-        System.err.println(input + weight);
+        weight *= sign;
+        System.err.println("Input name: " + input + " Weight: " + weight);
         inputWeights.put(input, weight);
     }
     
@@ -99,9 +108,19 @@ public class Neuron {
     public String getName() {
         return this.neuronName;
     }
+    
+    void rename(String name) {
+        this.neuronName = name;
+    }
 
     private double calculateOutput(double h) {
         double e = Math.E;
-        return 1.0/(1-Math.pow(e, -h));
+        double output = 1.0/(1+Math.pow(e, -h));
+        //System.err.println("neuron output: " + output);
+        return output;
+    }
+    
+    public void learn() {
+        
     }
 }

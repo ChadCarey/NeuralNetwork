@@ -32,24 +32,14 @@ public class NeuralNetwork {
      * 
      */
     private void run() {
-        DataSet trainingSet = null;
-        DataSet testingSet = null;
-        trainingSet = buildSet("irisdata.csv");
-        testingSet = trainingSet.removePercent(30);
+        DataSet trainingSet = buildSet("irisdata.csv");
+        DataSet testingSet = trainingSet.removePercent(30);
         
         Set<String> targetValues = trainingSet.getTargetValues();
         Set<String> attributeNames = trainingSet.getAttributeNames();
         
-        NeuronLayer layer = new NeuronLayer(targetValues, attributeNames);
-        
-        double last = 0;
-        double current = 15;
-        while(current > last+5 || last > current) {
-            layer.train(trainingSet);
-            last = current;
-            current = this.evaluate(layer, testingSet);
-        }
-        
+        ClassificationBrain brain = new ClassificationBrain(trainingSet, 10, 10);
+        this.evaluate(brain, testingSet);
         System.out.print("\n\nDone!\n\n");
     }
 
@@ -70,14 +60,15 @@ public class NeuralNetwork {
         return set;
     }
 
-    private double evaluate(NeuronLayer layer, DataSet testingSet) {
+    private double evaluate(ClassificationBrain brain, DataSet testingSet) {
         double correct = 0.0;
         Iterator <DataPoint> pIter = testingSet.iterator();
         while(pIter.hasNext()){
             DataPoint point = pIter.next();
-            ArrayList<Double> output = layer.classify(point);
-            String name = layer.getTargetName(output);
-            if(name.equals(point.getTargetValue())) {
+            String expected = point.getTargetValue();
+            String output = brain.classify(point);
+            System.out.println(output + " : " + expected);
+            if(output.equals(expected)) {
                 correct++;
             }
         }

@@ -210,4 +210,13 @@ public class DataPoint extends HashMap<String, String> {
         return keys;
     }
     
+    public String put(String key, double value) {
+        return this.put(key, value+"");
+    }
+    
+    public double toNumber(String value) {
+        
+        return 0.0;
+    }
+    
 }
