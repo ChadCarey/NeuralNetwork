@@ -97,7 +97,7 @@ public class Neuron {
         Double weight = randomNum / 3;
         weight += 0.1;
         weight *= sign;
-        System.err.println("Input name: " + input + " Weight: " + weight);
+        //System.err.println("Input name: " + input + " Weight: " + weight);
         inputWeights.put(input, weight);
     }
     

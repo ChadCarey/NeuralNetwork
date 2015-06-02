@@ -21,13 +21,15 @@ public class ClassificationBrain extends Brain {
 
     private Set<String> outputKeys;
     
-    public ClassificationBrain(DataSet exampleData, int numLayers, int maxExtraNeurons) {
+    public ClassificationBrain(BrainConfig brainConfig, DataSet exampleData) {
         super();
-//        Set<String> inputKeys = exampleData.getOne().getAttributeKeys();
         outputKeys = exampleData.getTargetValues();
         try {
-            int baseNeurons = outputKeys.size();
-            NeuronLayer outputLayer = this.buildBrain(numLayers, baseNeurons, maxExtraNeurons+baseNeurons, exampleData.getOne());
+            // ensure that the brain config has the correct number of output nodes (one for each class)
+            if(brainConfig.getOutputLayer() != outputKeys.size()) {
+                brainConfig.add(outputKeys.size());
+            }
+            NeuronLayer outputLayer = this.buildBrain(brainConfig, exampleData.getOne());
             outputLayer.renameNeurons(outputKeys);
         } catch (Exception ex) {
             Logger.getLogger(ClassificationBrain.class.getName()).log(Level.SEVERE, null, ex);
@@ -60,8 +62,18 @@ public class ClassificationBrain extends Brain {
         return outputClass;
     }
 
-    @Override
-    public void train(DataSet trainingSet) {
+    public void train(DataSet trainingSet, int iterations) {
+        for(int i = 0; i < iterations; ++i) {
+            Iterator<DataPoint> pIter = trainingSet.iterator();
+            while(pIter.hasNext()) {
+                DataPoint point = pIter.next();
+                String result =this.classify(point);
+                teach(point, result);
+            }
+        }
+    }
+    
+    private void teach(DataPoint point, String result) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

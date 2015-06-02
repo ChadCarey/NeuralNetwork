@@ -10,6 +10,7 @@ import DataSet.DataSet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,9 +38,15 @@ public class NeuralNetwork {
         
         Set<String> targetValues = trainingSet.getTargetValues();
         Set<String> attributeNames = trainingSet.getAttributeNames();
+        ArrayList<BrainConfig> configList = BrainConfig.loadBrainList("configList.csv");
+        Iterator<BrainConfig> iter = configList.iterator();
+        while(iter.hasNext()) {
+            BrainConfig config = iter.next();
+            ClassificationBrain brain = new ClassificationBrain(config, trainingSet);
+            double accuracy = this.evaluate(brain, testingSet);
+            writeResults(brain, accuracy);
+        }
         
-        ClassificationBrain brain = new ClassificationBrain(trainingSet, 10, 10);
-        this.evaluate(brain, testingSet);
         System.out.print("\n\nDone!\n\n");
     }
 
@@ -75,6 +82,10 @@ public class NeuralNetwork {
         double percent = (correct / testingSet.size())*100;
         System.out.println("\n\n\t\tAccuracy: " + percent);
         return percent;
+    }
+
+    private void writeResults(ClassificationBrain brain, double accuracy) {
+       // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

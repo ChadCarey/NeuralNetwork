@@ -8,6 +8,7 @@ package neuralnetwork;
 import DataSet.DataPoint;
 import DataSet.DataSet;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -23,38 +24,28 @@ abstract class Brain {
      * @param numOutputs
      * @param maxAdditionalNeurons 
      */
-    NeuronLayer buildBrain(int numLayers, int numOutputs, int maxAdditionalNeurons, DataPoint exampleData) throws Exception {
-        
-        if(maxAdditionalNeurons < numOutputs) {
-            Exception e = new Exception("maxNeurons must be greater or equal to numOutputs");
-            throw new Exception();
-        }
+    NeuronLayer buildBrain(BrainConfig brainConfig, DataPoint exampleData) throws Exception {
         // first inputs are the attributes of the dataPoint
         DataPoint dummyData = new DataPoint(exampleData);
         NeuronLayer lastLayer = null;
         
         // once for each layer
-        for(int i = 0; i < numLayers; ++i) {
-            
-            int numNeurons = numOutputs;
-            
-            // if this is not the last layer
-            // we choose a reandom number of neurons between numOutputs and maxNeurons
-            if(i+1 < numLayers) {
-                numNeurons += (Math.random()*maxAdditionalNeurons);
-                assert(numNeurons > 0);
-                assert(numNeurons < maxAdditionalNeurons);
-                assert(numNeurons >= numOutputs);
-            }
+        int numLayers = brainConfig.size();
+        int count = 0;
+        Iterator<Integer> iter = brainConfig.iterator();
+        while(iter.hasNext()) {
+            int numNeurons = iter.next();
+            count++;
            
-            System.out.println("Layer " + (i+1) + " of " + numLayers + ", numNeurons = " + numNeurons);
+            System.out.println("Layer " + count + " of " + numLayers + ", numNeurons = " + numNeurons);
             lastLayer = appendLayer(numNeurons, dummyData);
             dummyData.clear();
             // after creating the layer, the number of Neurons
             
             for(int j = 0; j < numNeurons; ++j) {
-                // only the last neuronlayer's names matter as far as classification goes
-                // but the names are needed to identify each nearon in the neuronLyaer
+                /*  only the last neuronlayer's names matter as far as classification goes
+                    but the names are needed to identify each nearon in the neuronLyaer
+                    so I am numbering them */
                 dummyData.put(j+"", j+"");
             }
         }
@@ -70,10 +61,8 @@ abstract class Brain {
     /**
      * displays the brain configuration
      */
-    public void printBraint() {
+    public void printBrain() {
         
     }
-    
-    public abstract void train(DataSet trainingSet);
     
 }
