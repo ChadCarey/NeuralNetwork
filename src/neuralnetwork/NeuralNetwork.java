@@ -21,6 +21,8 @@ import java.util.logging.Logger;
  */
 public class NeuralNetwork {
 
+    final private static int TRAINING_ITERATIONS = 100;
+    
     /**
      * @param args the command line arguments
      */
@@ -44,6 +46,9 @@ public class NeuralNetwork {
             BrainConfig config = iter.next();
             ClassificationBrain brain = new ClassificationBrain(config, trainingSet);
             double accuracy = this.evaluate(brain, testingSet);
+            writeResults(brain, accuracy);
+            brain.train(trainingSet, TRAINING_ITERATIONS);
+            accuracy = this.evaluate(brain, testingSet);
             writeResults(brain, accuracy);
         }
         

@@ -29,20 +29,31 @@ public class ClassificationBrain extends Brain {
             if(brainConfig.getOutputLayer() != outputKeys.size()) {
                 brainConfig.add(outputKeys.size());
             }
-            NeuronLayer outputLayer = this.buildBrain(brainConfig, exampleData.getOne());
+            outputLayer = this.buildBrain(brainConfig, exampleData.getOne());
             outputLayer.renameNeurons(outputKeys);
         } catch (Exception ex) {
             Logger.getLogger(ClassificationBrain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public String classify(DataPoint point) {
-        //DataPoint point = new DataPoint(data);
+    /**
+     * 
+     * @param p
+     * @return 
+     */
+    private DataPoint run(DataPoint p) {
+        DataPoint point = new DataPoint(p);
         Iterator<NeuronLayer> iter = this.neuronLayers.iterator();
         while(iter.hasNext()) {
             NeuronLayer layer = iter.next();
             point = layer.classify(point);
         }
+        return point;
+    }
+    
+    public String classify(DataPoint point) {
+        //DataPoint point = new DataPoint(data);
+        point = this.run(point);
         
         String outputClass = null;
         double maxValue = Double.NEGATIVE_INFINITY;
@@ -67,14 +78,61 @@ public class ClassificationBrain extends Brain {
             Iterator<DataPoint> pIter = trainingSet.iterator();
             while(pIter.hasNext()) {
                 DataPoint point = pIter.next();
-                String result =this.classify(point);
-                teach(point, result);
+                // run the point through the network
+                this.run(point);
+                // learn from mistakes
+                learn(point);
             }
+            // randomize after each iteration
+            trainingSet.randomize();
         }
+        
     }
     
-    private void teach(DataPoint point, String result) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    /**
+     * teaches the network
+     * @param point
+     * @param results 
+     */
+    private void learn(DataPoint correctPoint) {
+        // get last layer
+        // give lastLayer the expected output values
+        NeuronLayer lastLayer = this.getLast().learn(correctPoint);
+        // reverse through the neuron layers (skip the one that was done already)
+        for(int i = this.neuronLayers.size()-2; i >= 0; --i) {
+            //give the privious layer the lastLayer (last accessed layer)
+            // set the last layer to the layer that was just accessed
+            lastLayer = this.neuronLayers.get(i).learn(lastLayer);
+        }
+        
+    }
+    
+    /**
+     * calculates the total network error
+     * @param point
+     * @param results
+     * @return 
+     */
+    private DataPoint calculateOutputErrors(DataPoint point, DataPoint results) {
+       String correctAnswer = point.getTargetValue();
+       DataPoint errors = new DataPoint();
+       // iterate through the results
+       Iterator<String> iter = results.getAttributeKeys().iterator();
+       while(iter.hasNext()) {
+           String key = iter.next();
+           double currentActivation = Double.parseDouble(results.get(key));
+           double targetActivation = 0;
+           // calculate the error for each result
+           // the correct class should be 1
+           if(correctAnswer.equals(key)) {
+               targetActivation = 1;
+           } // the rest should be 0
+           
+           // currentActivation(1-currentActivation)(currentActivation-targetActivation)
+           double err = currentActivation*(1-currentActivation)*(currentActivation-targetActivation);
+           errors.put(key, err);
+       } 
+       return errors;
     }
     
 }

@@ -18,7 +18,8 @@ import java.util.Set;
  */
 public class NeuronLayer {
     
-    private List<Neuron> neurons = new ArrayList<Neuron>(); // when building don't forget the bias input
+    private List<Neuron> neurons = new ArrayList<Neuron>();
+    private BiasNeuron biasNeuron;
     
     NeuronLayer(int numNeurons, Set<String> inputNames) {
         // make a neuron for each name
@@ -26,6 +27,7 @@ public class NeuronLayer {
             String neuronName = i+"";
             neurons.add(new Neuron(inputNames, neuronName));
         }
+        biasNeuron = new BiasNeuron();
     }
     
     /**
@@ -99,6 +101,51 @@ public class NeuronLayer {
                 return neuron;
         }
         return null;
+    }
+
+    /**
+     * learns from the given data point
+     * @param correctPoint
+     * @return 
+     */
+    NeuronLayer learn(DataPoint correctPoint) {
+        // loop through the neurons
+        Iterator<Neuron> iter = this.neurons.iterator();
+        String targetName = correctPoint.getTargetValue();
+        while(iter.hasNext()) {
+            // calculate() the error for each neuron and set it in the neuron
+            // if this is the correct point, pass it a 1 as the target value
+            // else it is a zero
+            Neuron neuron = iter.next();
+            double targetValue = 0.0;
+            if(neuron.getName().equals(targetName)) {
+                targetValue = 1.0;
+            }
+            neuron.calculateError(targetValue);
+        }
+        
+        return this; // returns itself, this is just for use ease and uniformity
+    }
+
+    /**
+     * learns from the given neuron layer. Note: this is expected to be the next
+     * layer in a list of neuronLayers. (ie the one that used the outputs from this layer)
+     * @param lastLayer
+     * @return 
+     */
+    NeuronLayer learn(NeuronLayer followingLayer) {
+        // loop through the neurons
+        Iterator<Neuron> iter = this.neurons.iterator();
+        while(iter.hasNext()) {
+            // calculate() the error for each neuron and set it in the neuron
+            // if this is the correct point, pass it a 1 as the target value
+            // else it is a zero
+            Neuron neuron = iter.next();
+            neuron.calculateError(followingLayer.neurons);
+            neuron.calculateWeights(followingLayer.neurons);
+        }
+        this.biasNeuron.calculateWeights(followingLayer.neurons);
+        return this; // returns itself, this is just for use ease and uniformity
     }
     
 }

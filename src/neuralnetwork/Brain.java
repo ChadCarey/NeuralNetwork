@@ -16,7 +16,8 @@ import java.util.List;
  * @author chad
  */
 abstract class Brain {
-    List<NeuronLayer> neuronLayers = new ArrayList<NeuronLayer>();
+    protected List<NeuronLayer> neuronLayers = new ArrayList<NeuronLayer>();
+    protected NeuronLayer outputLayer;
     
     /**
      * handles building the brain
@@ -63,6 +64,18 @@ abstract class Brain {
      */
     public void printBrain() {
         
+    }
+    
+    /**
+     * returns the output layer
+     * @return 
+     */
+    protected NeuronLayer getLast() {
+        int size = this.neuronLayers.size();
+        if(size > 0)
+            return this.neuronLayers.get(size-1);
+        else
+            return null;
     }
     
 }
