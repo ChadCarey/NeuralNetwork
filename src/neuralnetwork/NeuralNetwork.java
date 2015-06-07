@@ -21,21 +21,25 @@ import java.util.logging.Logger;
  */
 public class NeuralNetwork {
 
-    final private static int TRAINING_ITERATIONS = 100;
+    final private static int TRAINING_ITERATIONS = 500;
     
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         NeuralNetwork brain = new NeuralNetwork();
-        brain.run();
+        System.out.println("iris");
+        brain.run("irisdata.csv");
+        System.out.println("diabetes");
+        brain.run("diabetes.csv");
     }
 
     /**
      * 
      */
-    private void run() {
-        DataSet trainingSet = buildSet("irisdata.csv");
+    private void run(String filename) {
+        DataSet trainingSet = buildSet(filename);
+        trainingSet.randomize();
         DataSet testingSet = trainingSet.removePercent(30);
         
         Set<String> targetValues = trainingSet.getTargetValues();
@@ -43,12 +47,15 @@ public class NeuralNetwork {
         ArrayList<BrainConfig> configList = BrainConfig.loadBrainList("configList.csv");
         Iterator<BrainConfig> iter = configList.iterator();
         while(iter.hasNext()) {
+            
             BrainConfig config = iter.next();
             ClassificationBrain brain = new ClassificationBrain(config, trainingSet);
-            double accuracy = this.evaluate(brain, testingSet);
-            writeResults(brain, accuracy);
+            double oldAccuracy = this.evaluate(brain, testingSet);
             brain.train(trainingSet, TRAINING_ITERATIONS);
-            accuracy = this.evaluate(brain, testingSet);
+            double accuracy = this.evaluate(brain, testingSet);
+            System.out.println("\t\told:      " + oldAccuracy);
+            
+            // write to csv
             writeResults(brain, accuracy);
         }
         
@@ -79,7 +86,7 @@ public class NeuralNetwork {
             DataPoint point = pIter.next();
             String expected = point.getTargetValue();
             String output = brain.classify(point);
-            System.out.println(output + " : " + expected);
+        //    System.out.println(output + " : " + expected);
             if(output.equals(expected)) {
                 correct++;
             }

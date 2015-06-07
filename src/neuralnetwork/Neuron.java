@@ -86,7 +86,7 @@ public class Neuron {
         this.output = calculateOutput(inputSum);
         //System.out.println(" new ouput: " + this.output);
         
-        return this.output;
+        return this.getOutput();
     }
     
     
@@ -109,7 +109,7 @@ public class Neuron {
     }
     
     public double getOutput() {
-        return output;
+        return this.output;
     }
     
     public String getName() {
@@ -122,9 +122,8 @@ public class Neuron {
 
     protected double calculateOutput(double h) {
         double e = Math.E;
-        double output = 1.0/(1+Math.pow(e, -h));
-        //System.err.println("neuron output: " + output);
-        return output;
+        double out = 1.0/(1+Math.pow(e, -h));
+        return out;
     }
     
 
@@ -133,7 +132,7 @@ public class Neuron {
      * @param targetValue 
      */
     void calculateError(double targetValue) {
-        this.error = this.output*(1-this.output)*(this.output-targetValue);
+        this.error = this.getOutput()*(1-this.getOutput())*(this.getOutput()-targetValue);
     }
 
     /**
@@ -148,7 +147,7 @@ public class Neuron {
             Neuron neuron = iter.next();
             weightedErrorSum += neuron.error * neuron.output;
         }
-        this.error = this.output*(1-this.output)*weightedErrorSum;
+        this.error = this.getOutput()*(1-this.getOutput())*weightedErrorSum;
     }
 
     /**
@@ -160,14 +159,20 @@ public class Neuron {
         Iterator<Neuron> iter = connectedNeurons.iterator();
         while(iter.hasNext()) {
             Neuron neuron = iter.next();
+            try{
             double currentWeight = neuron.inputWeights.get(this.neuronName);
             double neuronError = neuron.error;
-            double newWeight = currentWeight - LEARNING_RATE*neuronError*this.output;
-            if(Math.random()*1000 < 2.0) {
+            double newWeight = currentWeight - LEARNING_RATE*neuronError*this.getOutput(); // !!! equation difference
+            
                 System.out.println("this neuronName: " + this.neuronName + " that neuron keys: " + neuron.inputWeights);
                 System.out.println("Old weight: " + currentWeight + " new weight: " + newWeight);
+            
+                neuron.inputWeights.put(this.getName(), newWeight);
+            }catch (Exception e) {
+                System.out.println(this.neuronName + " : " + neuron.inputWeights);
+                e.printStackTrace();
+                System.exit(1);
             }
-            neuron.inputWeights.put(this.neuronName, newWeight);
         }
     }
 }

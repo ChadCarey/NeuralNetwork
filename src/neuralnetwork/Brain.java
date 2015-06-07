@@ -10,6 +10,7 @@ import DataSet.DataSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * contains the methods needed by all brain-type classes
@@ -47,14 +48,16 @@ abstract class Brain {
                 /*  only the last neuronlayer's names matter as far as classification goes
                     but the names are needed to identify each nearon in the neuronLyaer
                     so I am numbering them */
-                dummyData.put(j+"", j+"");
+                dummyData.put( j+"", j+"");
             }
         }
         return lastLayer; // this is to allow the brain to customize the output layer
     }
 
     private NeuronLayer appendLayer(int numNeurons, DataPoint exampleData) {
-        NeuronLayer layer = new NeuronLayer(numNeurons, exampleData.getAttributeKeys());
+        Set<String> names = exampleData.getAttributeKeys();
+        System.out.println(names);
+        NeuronLayer layer = new NeuronLayer(numNeurons, names);
         this.neuronLayers.add(layer);
         return layer;
     }

@@ -59,7 +59,7 @@ public class ClassificationBrain extends Brain {
         double maxValue = Double.NEGATIVE_INFINITY;
         // this should now be the output of the last layer
         Set<String> keys = point.getAttributeKeys();
-        System.out.println(keys);
+        //System.out.println(keys);
         Iterator<String> kIter = keys.iterator();
         while(kIter.hasNext()) {
             String key = kIter.next();
@@ -84,7 +84,7 @@ public class ClassificationBrain extends Brain {
                 learn(point);
             }
             // randomize after each iteration
-            trainingSet.randomize();
+            //trainingSet.randomize();
         }
         
     }

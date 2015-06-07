@@ -84,7 +84,7 @@ public class NeuronLayer {
     public void renameNeurons(Set<String> names) {
         Iterator<String> sIter = names.iterator();
         Iterator<Neuron> nIter = neurons.iterator();
-        for(int i = 0; nIter.hasNext() && sIter.hasNext(); ++i) {
+        while(nIter.hasNext() && sIter.hasNext()) {
             String name = sIter.next();
             Neuron neuron = nIter.next();
             System.err.print("Neuron " + neuron.getName() + " renamed to ");
